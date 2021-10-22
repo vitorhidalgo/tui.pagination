@@ -255,19 +255,57 @@ var View = defineClass(
       this._getContainerElement().appendChild(button);
     },
 
+    _appendFirstItemButton: function(viewData) {
+      var firstPage = viewData.leftPageNumber;
+      var lastPage = viewData.rightPageNumber;
+      var pageItem;
+      var i = 1;
+
+      if (i === viewData.page) {
+        pageItem = util.createElementByTemplate(this._template.currentPage, { page: i });
+      } else {
+        pageItem = util.createElementByTemplate(this._template.page, { page: i });
+        this._enabledPageElements.push(pageItem);
+      }
+
+      if (i === firstPage && !viewData.prevMore) {
+        addClass(pageItem, this._firstItemClassName);
+      }
+      if (i === lastPage && !viewData.nextMore) {
+        addClass(pageItem, this._lastItemClassName);
+      }
+      this._getContainerElement().appendChild(pageItem);
+    },
+
+    _appendLastItemButton: function(viewData) {
+      var lastPage = viewData.rightPageNumber;
+      var pageItem;
+      var i = viewData.lastPage;
+
+      if (i === viewData.page) {
+        pageItem = util.createElementByTemplate(this._template.currentPage, { page: i });
+      } else {
+        pageItem = util.createElementByTemplate(this._template.page, { page: i });
+        this._enabledPageElements.push(pageItem);
+      }
+
+      if (i === lastPage && !viewData.nextMore) {
+        addClass(pageItem, this._lastItemClassName);
+      }
+      this._getContainerElement().appendChild(pageItem);
+    },
+
     /**
      * Append previous more button on container element
      * @param {object} viewData - View data to render pagination
      * @private
      */
-    _appendPrevMoreButton: function(viewData) {
+    _appendPrevMoreButton: function() {
       var button;
 
-      if (viewData.prevMore) {
-        button = this._buttons.prevMore;
-        addClass(button, this._firstItemClassName);
-        this._getContainerElement().appendChild(button);
-      }
+      button = this._buttons.prevMore;
+      addClass(button, this._firstItemClassName);
+      this._getContainerElement().appendChild(button);
     },
 
     /**
@@ -275,14 +313,12 @@ var View = defineClass(
      * @param {object} viewData - View data to render pagination
      * @private
      */
-    _appendNextMoreButton: function(viewData) {
+    _appendNextMoreButton: function() {
       var button;
 
-      if (viewData.nextMore) {
-        button = this._buttons.nextMore;
-        addClass(button, this._lastItemClassName);
-        this._getContainerElement().appendChild(button);
-      }
+      button = this._buttons.nextMore;
+      addClass(button, this._lastItemClassName);
+      this._getContainerElement().appendChild(button);
     },
 
     /**
@@ -296,10 +332,26 @@ var View = defineClass(
       var lastPage = viewData.rightPageNumber;
       var pageItem, i;
 
+      if (lastPage === viewData.lastPageListIndex) {
+        firstPage -= 1;
+      }
+
       for (i = firstPage; i <= lastPage; i += 1) {
+        if (i === 1) {
+          i += 1;
+          firstPage = i;
+          lastPage = viewData.rightPageNumber + 1;
+        }
+
+        if (i === viewData.lastPageListIndex) {
+          return;
+        }
+
         if (i === viewData.page) {
-          pageItem = util.createElementByTemplate(this._template.currentPage, { page: i });
-        } else {
+          if (i !== 1) {
+            pageItem = util.createElementByTemplate(this._template.currentPage, { page: i });
+          }
+        } else if (i !== viewData.lastPageListIndex) {
           pageItem = util.createElementByTemplate(this._template.page, { page: i });
           this._enabledPageElements.push(pageItem);
         }
@@ -435,13 +487,13 @@ var View = defineClass(
      */
     update: function(viewData) {
       this._empty();
-      this._appendFirstButton(viewData);
       this._appendPrevButton(viewData);
+      this._appendFirstItemButton(viewData);
       this._appendPrevMoreButton(viewData);
       this._appendPages(viewData);
       this._appendNextMoreButton(viewData);
+      this._appendLastItemButton(viewData);
       this._appendNextButton(viewData);
-      this._appendLastButton(viewData);
     }
   }
 );
