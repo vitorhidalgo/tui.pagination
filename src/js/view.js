@@ -261,26 +261,32 @@ var View = defineClass(
       var pageItem;
       var i = 1;
 
-      if (i === viewData.page) {
-        pageItem = util.createElementByTemplate(this._template.currentPage, { page: i });
-      } else {
-        pageItem = util.createElementByTemplate(this._template.page, { page: i });
-        this._enabledPageElements.push(pageItem);
-      }
+      if (viewData.lastPage !== 1) {
+        if (i === viewData.page) {
+          pageItem = util.createElementByTemplate(this._template.currentPage, { page: i });
+        } else {
+          pageItem = util.createElementByTemplate(this._template.page, { page: i });
+          this._enabledPageElements.push(pageItem);
+        }
 
-      if (i === firstPage && !viewData.prevMore) {
-        addClass(pageItem, this._firstItemClassName);
+        if (i === firstPage && !viewData.prevMore) {
+          addClass(pageItem, this._firstItemClassName);
+        }
+        if (i === lastPage && !viewData.nextMore) {
+          addClass(pageItem, this._lastItemClassName);
+        }
+        this._getContainerElement().appendChild(pageItem);
       }
-      if (i === lastPage && !viewData.nextMore) {
-        addClass(pageItem, this._lastItemClassName);
-      }
-      this._getContainerElement().appendChild(pageItem);
     },
 
     _appendLastItemButton: function(viewData) {
       var lastPage = viewData.rightPageNumber;
       var pageItem;
       var i = viewData.lastPage;
+
+      if (viewData.lastPage === 1) {
+        return;
+      }
 
       if (i === viewData.page) {
         pageItem = util.createElementByTemplate(this._template.currentPage, { page: i });
@@ -300,12 +306,14 @@ var View = defineClass(
      * @param {object} viewData - View data to render pagination
      * @private
      */
-    _appendPrevMoreButton: function() {
+    _appendPrevMoreButton: function(viewData) {
       var button;
 
-      button = this._buttons.prevMore;
-      addClass(button, this._firstItemClassName);
-      this._getContainerElement().appendChild(button);
+      if (viewData.lastPage > 2) {
+        button = this._buttons.prevMore;
+        addClass(button, this._firstItemClassName);
+        this._getContainerElement().appendChild(button);
+      }
     },
 
     /**
@@ -313,12 +321,14 @@ var View = defineClass(
      * @param {object} viewData - View data to render pagination
      * @private
      */
-    _appendNextMoreButton: function() {
+    _appendNextMoreButton: function(viewData) {
       var button;
 
-      button = this._buttons.nextMore;
-      addClass(button, this._lastItemClassName);
-      this._getContainerElement().appendChild(button);
+      if (viewData.lastPage > 2) {
+        button = this._buttons.nextMore;
+        addClass(button, this._lastItemClassName);
+        this._getContainerElement().appendChild(button);
+      }
     },
 
     /**
@@ -332,9 +342,9 @@ var View = defineClass(
       var lastPage = viewData.rightPageNumber;
       var pageItem, i;
 
-      if (lastPage === viewData.lastPageListIndex) {
-        firstPage -= 1;
-      }
+      // if (lastPage === viewData.lastPageListIndex) {
+      //   firstPage -= 1;
+      // }
 
       for (i = firstPage; i <= lastPage; i += 1) {
         if (i === 1) {
@@ -352,7 +362,9 @@ var View = defineClass(
             pageItem = util.createElementByTemplate(this._template.currentPage, { page: i });
           }
         } else if (i !== viewData.lastPageListIndex) {
-          pageItem = util.createElementByTemplate(this._template.page, { page: i });
+          pageItem = util.createElementByTemplate(this._template.page, {
+            page: viewData.lastPage === 1 ? 1 : i
+          });
           this._enabledPageElements.push(pageItem);
         }
 
