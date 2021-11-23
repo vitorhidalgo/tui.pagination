@@ -1,6 +1,6 @@
 /*!
  * TOAST UI Pagination
- * @version 3.4.2
+ * @version 3.4.4
  * @author NHN FE Development Team <dl_javascript@nhn.com>
  * @license MIT
  */
@@ -2180,8 +2180,9 @@ var View = defineClass(
      */
     _appendPrevMoreButton: function(viewData) {
       var button;
+      console.log('viewdata: ', viewData);
 
-      if (viewData.lastPage > 2) {
+      if (viewData.lastPage > 5) {
         button = this._buttons.prevMore;
         addClass(button, this._firstItemClassName);
         this._getContainerElement().appendChild(button);
@@ -2196,7 +2197,7 @@ var View = defineClass(
     _appendNextMoreButton: function(viewData) {
       var button;
 
-      if (viewData.lastPage > 2) {
+      if (viewData.lastPage > 5) {
         button = this._buttons.nextMore;
         addClass(button, this._lastItemClassName);
         this._getContainerElement().appendChild(button);
